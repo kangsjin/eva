@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "gen": "syntax-cli --grammar grammar.bnf --mode LALR1 --output parser.js"
+  },
+  "dependencies": {
+    "syntax-cli": "^0.1.27"
+  }
+}
