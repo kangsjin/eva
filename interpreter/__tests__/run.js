@@ -8,17 +8,10 @@ const test = [
   "block-test",
   "if-test",
   "while-test",
+  "built-in-function-test",
 ];
 
-const eva = new Eva(
-  new Environment({
-    null: null,
-    true: true,
-    false: false,
-    VERSION: "0.1",
-    AUTHOR: "SOOJIN KANG",
-  })
-);
+const eva = new Eva();
 
 test.forEach((name) => {
   try {
@@ -32,3 +25,4 @@ test.forEach((name) => {
 });
 
 console.log("✅ All assertions passed!");
+eva.eval(["😍", '"수진"']);
