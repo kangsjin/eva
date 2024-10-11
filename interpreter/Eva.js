@@ -16,38 +16,6 @@ module.exports = class Eva {
       return exp.slice(1, -1);
     }
 
-    // Math:
-
-    // if (exp[0] === "+") {
-    //   return this.eval(exp[1], env) + this.eval(exp[2], env);
-    // }
-
-    // if (exp[0] === "*") {
-    //   return this.eval(exp[1], env) * this.eval(exp[2], env);
-    // }
-
-    // Comparison operators:
-
-    // if (exp[0] === ">") {
-    //   return this.eval(exp[1], env) > this.eval(exp[2], env);
-    // }
-
-    // if (exp[0] === ">=") {
-    //   return this.eval(exp[1], env) >= this.eval(exp[2], env);
-    // }
-
-    // if (exp[0] === "<") {
-    //   return this.eval(exp[1], env) < this.eval(exp[2], env);
-    // }
-
-    // if (exp[0] === "<=") {
-    //   return this.eval(exp[1], env) <= this.eval(exp[2], env);
-    // }
-
-    // if (exp[0] === "==") {
-    //   return this.eval(exp[1], env) === this.eval(exp[2], env);
-    // }
-
     // Block:
 
     if (exp[0] === "begin") {
@@ -100,18 +68,54 @@ module.exports = class Eva {
       return result;
     }
 
+    // Function declaration: (def square (x) (* x x))
+    if (exp[0] === "def") {
+      const [_tag, name, params, body] = exp;
+
+      const fn = {
+        params,
+        body,
+        env, // closure!
+        // the environment in which this fn is defined
+        // rather than the env in which the fn gets called
+      };
+
+      return env.define(name, fn);
+    }
+
     // Function calls:
 
     if (Array.isArray(exp)) {
       const fn = this.eval(exp[0], env);
       const args = exp.slice(1).map((arg) => this.eval(arg, env));
 
+      // 1. Native JS function:
+
       if (typeof fn === "function") {
         return fn(...args);
       }
+
+      // 2. User-defined function:
+
+      const activationRecord = {};
+      fn.params.forEach((param, index) => {
+        activationRecord[param] = args[index];
+      });
+
+      // const activationEnv = new Environment(activationRecord, env); // dynamic scope!
+      const activationEnv = new Environment(activationRecord, fn.env); // static(lexical) scope !
+
+      return this._evalBody(fn.body, activationEnv);
     }
 
     throw `Unimplemented: ${JSON.stringify(exp)}`;
+  }
+
+  _evalBody(exp, env) {
+    if (exp[0] === "begin") {
+      return this._evalBlock(exp, env);
+    }
+    return this.eval(exp, env);
   }
 
   _evalBlock(block, env) {

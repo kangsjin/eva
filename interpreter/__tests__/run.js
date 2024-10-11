@@ -9,6 +9,7 @@ const test = [
   "if-test",
   "while-test",
   "built-in-function-test",
+  "user-defined-function-test",
 ];
 
 const eva = new Eva();
