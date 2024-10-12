@@ -72,15 +72,20 @@ module.exports = class Eva {
     if (exp[0] === "def") {
       const [_tag, name, params, body] = exp;
 
-      const fn = {
+      // JIT-transpile to a variable declaration
+
+      return this.eval(["var", name, ["lambda", params, body]], env);
+    }
+
+    // Lambda function: (lambda (x) (* x x))
+    if (exp[0] === "lambda") {
+      const [_tag, params, body] = exp;
+
+      return {
         params,
         body,
-        env, // closure!
-        // the environment in which this fn is defined
-        // rather than the env in which the fn gets called
+        env,
       };
-
-      return env.define(name, fn);
     }
 
     // Function calls:

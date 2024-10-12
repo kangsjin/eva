@@ -10,6 +10,7 @@ const test = [
   "while-test",
   "built-in-function-test",
   "user-defined-function-test",
+  "lambda-function-test",
 ];
 
 const eva = new Eva();
