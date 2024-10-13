@@ -1,8 +1,10 @@
 const Environment = require("./Environment");
+const Transformer = require("./Transformer");
 
 module.exports = class Eva {
   constructor(global = GlobalEnvironment) {
     this.global = global;
+    this._transformer = new Transformer();
   }
 
   eval(exp, env = this.global) {
@@ -69,12 +71,67 @@ module.exports = class Eva {
     }
 
     // Function declaration: (def square (x) (* x x))
+    // Syntactic sugar for: (var square (lambda (x) (* x x)))
+
     if (exp[0] === "def") {
-      const [_tag, name, params, body] = exp;
-
       // JIT-transpile to a variable declaration
+      const varExp = this._transformer.transformDefToVarLambda(exp);
 
-      return this.eval(["var", name, ["lambda", params, body]], env);
+      return this.eval(varExp, env);
+    }
+
+    // Switch-expression: (switch (cond1, block1) ...)
+    // Syntactic sugar for nested if-expressions
+
+    if (exp[0] === "switch") {
+      const ifExp = this._transformer.transformSwitchToIf(exp);
+
+      return this.eval(ifExp, env);
+    }
+
+    // For-loop: (for init condition modifier body)
+    // Syntactic sugar for: (begin init (while condition (begin body modifier)))
+
+    if (exp[0] === "for") {
+      const forExp = this._transformer.transformForToWhile(exp);
+
+      return this.eval(forExp, env);
+    }
+
+    // Increment: (++ foo)
+    // Syntactic sugar for: (set foo (+ foo 1))
+
+    if (exp[0] === "++") {
+      const setExp = this._transformer.transformIncToSet(exp);
+
+      return this.eval(setExp, env);
+    }
+
+    // decrement: (-- foo)
+    // Syntactic sugar for: (set foo (- foo 1))
+
+    if (exp[0] === "--") {
+      const setExp = this._transformer.transformDecToSet(exp);
+
+      return this.eval(setExp, env);
+    }
+
+    // Increment: (+= foo inc)
+    // Syntactic sugar for: (set foo (+ foo inc))
+
+    if (exp[0] === "+=") {
+      const setExp = this._transformer.transformIncValToSet(exp);
+
+      return this.eval(setExp, env);
+    }
+
+    // Decrement: (-= foo dec)
+    // Syntactic sugar for: (set foo (- foo dec))
+
+    if (exp[0] === "-=") {
+      const setExp = this._transformer.transformDecValToSet(exp);
+
+      return this.eval(setExp, env);
     }
 
     // Lambda function: (lambda (x) (* x x))

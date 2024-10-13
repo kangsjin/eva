@@ -11,6 +11,10 @@ const test = [
   "built-in-function-test",
   "user-defined-function-test",
   "lambda-function-test",
+  "switch-test",
+  "for-loop-test",
+  "increment-test",
+  "decrement-test",
 ];
 
 const eva = new Eva();
