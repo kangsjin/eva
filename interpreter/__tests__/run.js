@@ -15,6 +15,7 @@ const test = [
   "for-loop-test",
   "increment-test",
   "decrement-test",
+  "class-test",
 ];
 
 const eva = new Eva();
